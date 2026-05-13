@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Homebase - Dashboard V2</title>
+    <!-- Font Plus Jakarta Sans: Sangat modern, clean, dan tingkat keterbacaannya (legibility) sangat baik untuk senior -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* --- TEMA WARNA: SLATE BLUE (LEMBUT, MODERN, FORMAL) --- */
+        :root {
+            /* Light Mode */
+            --bg-body: #f8fafc; /* Lebih terang dan bersih */
+            --bg-surface: #ffffff;
+            --bg-header: #ffffff;
+            --bg-sidebar: #ffffff;
+            
+            --text-main: #334155; /* Slate dark */
+            --text-muted: #64748b;
+            --text-title: #0f172a;
+            
+            --border-color: #e2e8f0;
+            --primary-color: #3b82f6; /* Blue modern */
+            --primary-hover: #2563eb;
+            --primary-light: #eff6ff;
+            --accent-color: #8b5cf6; /* Sedikit aksen ungu agar tidak kaku */
+            
+            --danger-light: #fef2f2;
+            --danger-text: #ef4444;
+            --success-light: #ecfdf5;
+            --success-text: #10b981;
+            
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+            --shadow-hover: 0 25px 30px -5px rgb(59 130 246 / 0.15); /* Shadow kebiruan saat hover */
+            
+            --radius-md: 12px;
+            --radius-lg: 20px; /* Lengkungan lebih besar (friendly/modern) */
+            
+            --transition-bounce: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            --transition-smooth: all 0.3s ease;
+        }
+
+        [data-theme="dark"] {
+            /* Dark Mode */
+            --bg-body: #0f172a; /* Slate Sangat Gelap */
+            --bg-surface: #1e293b;
+            --bg-header: #1e293b;
+            --bg-sidebar: #1e293b;
+            
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --text-title: #ffffff;
+            
+            --border-color: #334155;
+            --primary-color: #60a5fa;
+            --primary-hover: #93c5fd;
+            --primary-light: rgba(59, 130, 246, 0.15);
+            
+            --danger-light: rgba(239, 68, 68, 0.15);
+            --danger-text: #f87171;
+            --success-light: rgba(16, 185, 129, 0.15);
+            --success-text: #34d399;
+
+            --shadow-hover: 0 25px 30px -5px rgb(0 0 0 / 0.5);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            transition: background-color 0.4s ease, color 0.4s ease;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            font-size: 16px; /* Keterbacaan yang baik */
+        }
+
+        /* --- ANIMASI KEYFRAMES --- */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+        }
+
+        @keyframes slideRightIcon {
+            0% { transform: translateX(0); }
+            50% { transform: translateX(4px); }
+            100% { transform: translateX(0); }
+        }
+
+        /* --- SIDEBAR (EKSTRA LEGA) --- */
+        .sidebar {
+            width: 280px; /* Lebih lebar sedikit */
+            background-color: var(--bg-sidebar);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            transition: var(--transition-smooth);
+            z-index: 100;
+        }
+
+        .sidebar-header {
+            height: 80px; /* Header lebih tinggi / lega */
+            display: flex;
+            align-items: center;
+            padding: 0 32px;
+            color: var(--text-title);
+            font-size: 1.5rem;
+            font-weight: 800;
+            border-bottom: 1px solid transparent; /* Untuk dark mode styling */
+        }
+
+        .sidebar-header i {
+            color: var(--primary-color);
+            font-size: 1.8rem;
+            margin-right: 12px;
+            animation: pulseGlow 3s infinite; /* Ikon logo berdenyut pelan */
+            border-radius: 50%;
+        }
+
+        .sidebar-menu {
+            padding: 24px 20px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .menu-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 700;
+            margin-bottom: 12px;
+            padding-left: 16px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px; /* Ekstra padding, target klik besar */
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            color: var(--text-main);
+            margin-bottom: 8px;
+            font-weight: 600;
+            transition: var(--transition-smooth);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Animasi saat menu di-hover (Ikon maju mundur) */
+        .menu-item:hover {
+            background-color: var(--bg-body);
+            color: var(--primary-color);
+        }
+        
+        .menu-item:hover .menu-item-left i {
+            animation: slideRightIcon 1s ease infinite;
+        }
+
+        .menu-item.active {
+            background-color: var(--primary-color);
+            color: #ffffff;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .menu-item.active .menu-item-left i {
+            animation: none; /* Matikan animasi icon maju-mundur jika sedang aktif */
+        }
+
+        .menu-item-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .menu-item-left i {
+            font-size: 1.2rem;
+            width: 24px;
+            text-align: center;
+        }
+
+        .menu-item i.arrow {
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            font-size: 0.9rem;
+        }
+
+        .menu-item.open i.arrow {
+            transform: rotate(180deg);
+        }
+
+        /* Akordeon Sub-menu Mulus */
+        .submenu-wrapper {
+            display: grid;
+            grid-template-rows: 0fr;
+            transition: grid-template-rows 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .submenu-wrapper.open {
+            grid-template-rows: 1fr;
+        }
+
+        .submenu {
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .submenu-inner {
+            padding: 4px 0 12px 0; /* Wrapper dalam untuk jarak ekstra */
+        }
+
+        .submenu-item {
+            padding: 12px 16px 12px 56px;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: var(--radius-md);
+            transition: var(--transition-bounce);
+            position: relative;
+        }
+
+        .submenu-item::before {
+            content: '';
+            position: absolute;
+            left: 36px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: var(--border-color);
+            transition: var(--transition-smooth);
+        }
+
+        .submenu-item:hover {
+            color: var(--primary-color);
+            transform: translateX(8px); /* Menjorok ke kanan saat hover */
+        }
+
+        .submenu-item:hover::before {
+            background-color: var(--primary-color);
+            transform: translateY(-50%) scale(1.5);
+        }
+
+
+        /* --- MAIN CONTENT & HEADER --- */
+        .main-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .top-header {
+            height: 80px; /* Header lega */
+            background-color: var(--bg-header);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 40px;
+            transition: var(--transition-smooth);
+            z-index: 50;
+        }
+
+        .header-left button {
+            background: var(--bg-body);
+            border: 1px solid var(--border-color);
+            width: 45px;
+            height: 45px;
+            border-radius: var(--radius-md);
+            color: var(--text-main);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .header-left button:hover {
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+            border-color: var(--primary-light);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .icon-btn {
+            background: var(--bg-body);
+            border: 1px solid var(--border-color);
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            color: var(--text-main);
+            font-size: 1.1rem;
+            cursor: pointer;
+            position: relative;
+            transition: var(--transition-bounce);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            color: var(--primary-color);
+            box-shadow: var(--shadow-md);
+            border-color: transparent;
+        }
+
+        /* Notif Badge Animasi */
+        .notif-badge {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            background-color: var(--danger-text);
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 2px solid var(--bg-header);
+            animation: pulseGlow 2s infinite;
+        }
+
+        /* Sistem Dropdown Popup (Lebih Clean & Bouncy) */
+        .dropdown-container { position: relative; }
+
+        .dropdown-popup {
+            position: absolute;
+            top: 60px;
+            right: 0;
+            background-color: var(--bg-surface);
+            color: var(--text-main);
+            width: 320px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(20px) scale(0.95);
+            transition: var(--transition-bounce);
+            z-index: 1000;
+            overflow: hidden; /* agar border radius item tidak tembus */
+        }
+
+        .dropdown-popup.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) scale(1);
+        }
+
+        .dropdown-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 700;
+            background-color: var(--bg-body);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .dropdown-body {
+            padding: 32px 24px;
+            font-size: 1rem;
+            color: var(--text-muted);
+            text-align: center;
+        }
+        
+        .dropdown-item {
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            font-weight: 600;
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+            padding-left: 32px; /* Animasi geser */
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            cursor: pointer;
+            padding: 6px 20px 6px 6px;
+            border-radius: 50px;
+            background-color: var(--bg-body);
+            border: 1px solid var(--border-color);
+            transition: var(--transition-bounce);
+            font-weight: 600;
+        }
+        
+        .user-profile:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary-color);
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        /* --- CONTENT AREA (SPACIOUS) --- */
+        .content {
+            padding: 40px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .content-container {
+            max-width: 1400px;
+            margin: 0 auto; /* Center content di layar super lebar */
+        }
+
+        .alert-box {
+            background-color: var(--danger-light);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-left: 6px solid var(--danger-text);
+            color: var(--danger-text);
+            padding: 24px;
+            border-radius: var(--radius-md);
+            margin-bottom: 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            font-size: 1rem;
+            line-height: 1.6;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .page-header {
+            margin-bottom: 40px;
+            animation: fadeInUp 0.6s ease-out 0.1s both;
+        }
+
+        .page-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--text-title);
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
+        
+        .page-subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        /* Kartu Dashboard (Hover Effect Kencang tapi Formal) */
+        .dashboard-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 32px;
+            margin-bottom: 32px;
+        }
+
+        .card {
+            background-color: var(--bg-surface);
+            padding: 32px;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color);
+            transition: var(--transition-bounce);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            /* Staggered Animation Delay via Inline Style nantinya */
+            animation: fadeInUp 0.6s ease-out both;
+        }
+
+        /* Aksen Gradien Tipis di atas kartu */
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+            opacity: 0;
+            transition: var(--transition-smooth);
+        }
+
+        /* --- ANIMASI HOVER KARTU --- */
+        .card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: var(--shadow-hover);
+            border-color: transparent;
+        }
+
+        .card:hover::before {
+            opacity: 1;
+        }
+
+        /* Rotasi Icon saat dihover */
+        .card:hover .card-icon i {
+            transform: scale(1.2) rotate(10deg);
+        }
+
+        .card-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin-bottom: 24px;
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+            transition: var(--transition-bounce);
+        }
+
+        .card-icon i {
+            transition: var(--transition-bounce);
+        }
+        
+        /* Pewarnaan spesifik per kartu */
+        .card:nth-child(3) .card-icon {
+            background-color: var(--danger-light);
+            color: var(--danger-text);
+        }
+        .card:nth-child(4) .card-icon {
+            background-color: var(--success-light);
+            color: var(--success-text);
+        }
+        
+        .card-title {
+            font-size: 1rem;
+            color: var(--text-muted);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .card-value {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--text-title);
+            margin-top: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .card-badge {
+            font-size: 1rem;
+            padding: 6px 12px;
+            background-color: var(--success-light);
+            color: var(--success-text);
+            border-radius: 50px;
+            font-weight: 700;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <i class="fas fa-cube"></i> Homebase
+        </div>
+        <div class="sidebar-menu">
+            <div class="menu-label">Main Menu</div>
+            
+            <div class="menu-item active">
+                <div class="menu-item-left">
+                    <i class="fas fa-home"></i> Beranda
+                </div>
+            </div>
+
+            <div class="menu-item has-submenu">
+                <div class="menu-item-left">
+                    <i class="fas fa-envelope-open-text"></i> Surat Masuk
+                </div>
+                <i class="fas fa-chevron-down arrow"></i>
+            </div>
+            <div class="submenu-wrapper">
+                <div class="submenu">
+                    <div class="submenu-inner">
+                        <div class="submenu-item">Semua Surat</div>
+                        <div class="submenu-item">Belum Dibaca</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="menu-item has-submenu">
+                <div class="menu-item-left">
+                    <i class="fas fa-paper-plane"></i> Surat Usulan
+                </div>
+                <i class="fas fa-chevron-down arrow"></i>
+            </div>
+            <div class="submenu-wrapper">
+                <div class="submenu">
+                    <div class="submenu-inner">
+                        <div class="submenu-item">Buat Usulan</div>
+                        <div class="submenu-item">Riwayat</div>
+                        <div class="submenu-item">Ditolak</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="menu-item">
+                <div class="menu-item-left">
+                    <i class="fas fa-folder-open"></i> Master Surat
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-wrapper">
+        <!-- HEADER -->
+        <header class="top-header">
+            <div class="header-left">
+                <button id="toggleSidebar"><i class="fas fa-bars-staggered"></i></button>
+            </div>
+            <div class="header-right">
+                <!-- Toggle Tema -->
+                <button class="icon-btn" id="themeToggle" title="Ubah Tema">
+                    <i class="fas fa-moon"></i>
+                </button>
+
+                <!-- Notifikasi Popup -->
+                <div class="dropdown-container">
+                    <button class="icon-btn" id="notifToggle">
+                        <i class="fas fa-bell"></i>
+                        <span class="notif-badge"></span>
+                    </button>
+                    <div class="dropdown-popup" id="notifPopup">
+                        <div class="dropdown-header">
+                            <i class="fas fa-bell" style="color: var(--primary-color);"></i> Pemberitahuan
+                        </div>
+                        <div class="dropdown-body">
+                            Tidak ada notifikasi baru hari ini.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Popup -->
+                <div class="dropdown-container">
+                    <div class="user-profile" id="userToggle">
+                        <div class="avatar">DM</div>
+                        <span>Danish Mahdi</span>
+                        <i class="fas fa-chevron-down" style="font-size: 0.8rem; color: var(--text-muted); margin-left: 8px;"></i>
+                    </div>
+                    <div class="dropdown-popup" id="userPopup" style="width: 250px;">
+                        <div class="dropdown-item">
+                            <i class="fas fa-user-circle" style="color: var(--primary-color);"></i> Profil Saya
+                        </div>
+                        <div class="dropdown-item">
+                            <i class="fas fa-cog" style="color: var(--text-muted);"></i> Pengaturan
+                        </div>
+                        <div class="dropdown-item" style="color: var(--danger-text); border-top: 1px solid var(--border-color);">
+                            <i class="fas fa-sign-out-alt"></i> Keluar Sistem
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- KONTEN INTI -->
+        <div class="content">
+            <div class="content-container">
+                
+                <div class="alert-box">
+                    <div>
+                        <strong><i class="fas fa-info-circle" style="margin-right: 8px;"></i> Tindakan Diperlukan:</strong><br>
+                        Harap lengkapi data profil Anda untuk memastikan semua notifikasi penting (surat masuk, disposisi, dsb.) terkirim dengan tepat waktu.
+                    </div>
+                    <button style="background:none; border:none; color:inherit; cursor:pointer; font-size: 1.2rem; transition: transform 0.3s;" onmouseover="this.style.transform='scale(1.2) rotate(90deg)'" onmouseout="this.style.transform='none'">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <div class="page-header">
+                    <h1 class="page-title">Selamat Datang, Danish 👋</h1>
+                    <p class="page-subtitle">Sistem Informasi Manajemen Surat Elektronik Direktorat SDM Universitas Diponegoro</p>
+                </div>
+
+                <!-- Kartu Dashboard dengan staggered delay -->
+                <div class="dashboard-cards">
+                    <div class="card" style="animation-delay: 0.2s;">
+                        <div class="card-icon"><i class="fas fa-envelope-open-text"></i></div>
+                        <div class="card-title">Surat Masuk Anda</div>
+                        <div class="card-value">12 <span class="card-badge">+20%</span></div>
+                    </div>
+                    <div class="card" style="animation-delay: 0.3s;">
+                        <div class="card-icon"><i class="fas fa-paper-plane"></i></div>
+                        <div class="card-title">Surat Keluar</div>
+                        <div class="card-value">8 <span class="card-badge">+5%</span></div>
+                    </div>
+                    <div class="card" style="animation-delay: 0.4s;">
+                        <div class="card-icon"><i class="fas fa-edit"></i></div>
+                        <div class="card-title">Surat Usulan Anda</div>
+                        <div class="card-value">0 <span class="card-badge" style="background-color: var(--border-color); color: var(--text-muted);">0%</span></div>
+                    </div>
+                    <div class="card" style="animation-delay: 0.5s;">
+                        <div class="card-icon"><i class="fas fa-file-alt"></i></div>
+                        <div class="card-title">Nota Dinas Anda</div>
+                        <div class="card-value">3 <span class="card-badge">+100%</span></div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // 1. LOGIKA AKORDEON SIDEBAR (EXCLUSIVE)
+        const menuItems = document.querySelectorAll('.menu-item');
+        
+        menuItems.forEach(item => {
+            item.addEventListener('click', function() {
+                // Hapus state active dari tombol normal
+                if(!this.classList.contains('has-submenu')) {
+                    menuItems.forEach(m => m.classList.remove('active'));
+                    this.classList.add('active');
+                }
+
+                // Jika mengklik menu dengan dropdown
+                if (this.classList.contains('has-submenu')) {
+                    const isCurrentlyOpen = this.classList.contains('open');
+                    const submenuWrapper = this.nextElementSibling;
+
+                    // Tutup semua menu lainnya
+                    document.querySelectorAll('.menu-item.has-submenu').forEach(otherMenu => {
+                        otherMenu.classList.remove('open');
+                        otherMenu.nextElementSibling.classList.remove('open');
+                    });
+
+                    // Jika tertutup, buka
+                    if (!isCurrentlyOpen) {
+                        this.classList.add('open');
+                        submenuWrapper.classList.add('open');
+                    }
+                }
+            });
+        });
+
+        // 2. TEMA GELAP/TERANG DENGAN ANIMASI ROTASI IKON
+        const themeToggleBtn = document.getElementById('themeToggle');
+        const themeIcon = themeToggleBtn.querySelector('i');
+
+        themeToggleBtn.addEventListener('click', () => {
+            const body = document.body;
+            const isDarkMode = body.getAttribute('data-theme') === 'dark';
+
+            // Efek putar saat ikon berganti
+            themeIcon.style.transform = 'rotate(360deg) scale(0)';
+            
+            setTimeout(() => {
+                if (isDarkMode) {
+                    body.removeAttribute('data-theme');
+                    themeIcon.classList.replace('fa-sun', 'fa-moon');
+                } else {
+                    body.setAttribute('data-theme', 'dark');
+                    themeIcon.classList.replace('fa-moon', 'fa-sun');
+                }
+                themeIcon.style.transform = 'rotate(0deg) scale(1)';
+            }, 200); // Sinkron dengan durasi transisi css icon-btn
+        });
+
+        // 3. LOGIKA POPUP (NOTIFIKASI & USER)
+        const notifToggle = document.getElementById('notifToggle');
+        const notifPopup = document.getElementById('notifPopup');
+        
+        const userToggle = document.getElementById('userToggle');
+        const userPopup = document.getElementById('userPopup');
+
+        // Toggle Notifikasi
+        notifToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            notifPopup.classList.toggle('show');
+            userPopup.classList.remove('show');
+        });
+
+        // Toggle User
+        userToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            userPopup.classList.toggle('show');
+            notifPopup.classList.remove('show');
+        });
+
+        // Klik di luar untuk menutup
+        window.addEventListener('click', (e) => {
+            if (!notifPopup.contains(e.target) && !notifToggle.contains(e.target)) {
+                notifPopup.classList.remove('show');
+            }
+            if (!userPopup.contains(e.target) && !userToggle.contains(e.target)) {
+                userPopup.classList.remove('show');
+            }
+        });
+    </script>
+</body>
+</html>
