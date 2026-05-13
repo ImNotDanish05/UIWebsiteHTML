@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Homebase - V3 Gen Z Bento</title>
+    
+    <!-- Font Inter untuk kesan tech & clean -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            /* Light Mode - iOS Vibe */
+            --bg-body: #f2f2f7; /* Abu-abu sangat terang ala Apple */
+            --bg-card: #ffffff;
+            --bg-sidebar: #ffffff;
+            
+            --text-main: #1d1d1f;
+            --text-muted: #86868b;
+            --text-bold: #000000;
+            
+            --border-color: rgba(0,0,0,0.05);
+            --primary-color: #007aff; /* Apple Blue */
+            --primary-light: #e5f0ff;
+            
+            --accent-gradient: linear-gradient(135deg, #FF2D55, #FF375F); /* Aksen berani */
+            
+            --danger-bg: #ffeef0;
+            --danger-text: #ff3b30;
+            
+            --radius-sm: 16px;
+            --radius-md: 24px;
+            --radius-lg: 32px; /* Super rounded */
+            
+            --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.03);
+            --shadow-hover: 0 10px 30px rgba(0, 0, 0, 0.08);
+            --shadow-float: 0 20px 40px rgba(0, 0, 0, 0.1);
+            
+            --spring: cubic-bezier(0.25, 1, 0.5, 1); /* Animasi memantul ala iOS */
+        }
+
+        [data-theme="dark"] {
+            /* Dark Mode - Pure OLED Vibe */
+            --bg-body: #000000;
+            --bg-card: #1c1c1e;
+            --bg-sidebar: #1c1c1e;
+            
+            --text-main: #f5f5f7;
+            --text-muted: #98989d;
+            --text-bold: #ffffff;
+            
+            --border-color: rgba(255,255,255,0.05);
+            --primary-color: #0a84ff;
+            --primary-light: rgba(10, 132, 255, 0.15);
+            
+            --danger-bg: rgba(255, 59, 48, 0.15);
+            --danger-text: #ff453a;
+            
+            --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.2);
+            --shadow-hover: 0 10px 30px rgba(0, 0, 0, 0.4);
+            --shadow-float: 0 20px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            transition: background-color 0.4s var(--spring);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            padding: 20px; /* Jarak luar agar konten melayang */
+            gap: 20px;
+        }
+
+        /* --- FLOATING SIDEBAR --- */
+        .sidebar {
+            width: 260px;
+            background-color: var(--bg-sidebar);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            display: flex;
+            flex-direction: column;
+            transition: all 0.4s var(--spring);
+            z-index: 100;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .sidebar-header {
+            padding: 30px 24px 20px;
+            font-size: 1.6rem;
+            font-weight: 900;
+            letter-spacing: -1px;
+            color: var(--text-bold);
+        }
+
+        .sidebar-header i {
+            color: var(--primary-color);
+            margin-right: 8px;
+        }
+
+        .sidebar-menu {
+            padding: 10px 16px;
+            overflow-y: auto;
+            flex: 1;
+        }
+        
+        .sidebar-menu::-webkit-scrollbar { width: 0; } /* Sembunyikan scrollbar agar clean */
+
+        .menu-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 700;
+            margin: 16px 0 8px 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 16px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            color: var(--text-muted);
+            font-weight: 600;
+            margin-bottom: 6px;
+            transition: all 0.3s var(--spring);
+        }
+
+        .menu-item:hover {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            transform: translateX(4px);
+        }
+
+        .menu-item.active {
+            background-color: var(--text-bold);
+            color: var(--bg-card);
+        }
+
+        .menu-item-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .menu-item i.arrow {
+            transition: transform 0.4s var(--spring);
+            font-size: 0.8rem;
+        }
+
+        .menu-item.open i.arrow {
+            transform: rotate(180deg);
+        }
+
+        .submenu-wrapper {
+            display: grid;
+            grid-template-rows: 0fr;
+            transition: grid-template-rows 0.4s var(--spring);
+        }
+
+        .submenu-wrapper.open {
+            grid-template-rows: 1fr;
+        }
+
+        .submenu {
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .submenu-inner {
+            padding: 4px 12px 12px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .submenu-item {
+            padding: 10px 16px 10px 42px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: var(--radius-sm);
+            transition: all 0.3s var(--spring);
+        }
+
+        .submenu-item:hover {
+            color: var(--text-bold);
+            background-color: var(--bg-body);
+        }
+
+        .main-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            gap: 20px;
+        }
+
+        /* Header Dibuat Terpisah & Bulat (Pill Shape) */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 70px;
+        }
+
+        /* Input Pencarian ala macOS */
+        .search-bar {
+            background-color: var(--bg-card);
+            border-radius: 50px;
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 300px;
+            box-shadow: var(--shadow-card);
+            border: 1px solid var(--border-color);
+        }
+
+        .search-bar i { color: var(--text-muted); }
+        .search-bar input {
+            border: none;
+            background: none;
+            outline: none;
+            color: var(--text-main);
+            font-weight: 500;
+            width: 100%;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        /* Tombol bundar modern */
+        .icon-btn {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            color: var(--text-main);
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: var(--shadow-card);
+            transition: transform 0.3s var(--spring);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-btn:hover { transform: scale(1.1); }
+
+        /* User Pill */
+        .user-pill {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 50px;
+            padding: 6px 16px 6px 6px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            box-shadow: var(--shadow-card);
+            transition: transform 0.3s var(--spring);
+        }
+
+        .user-pill:hover { transform: scale(1.05); }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .user-name { font-weight: 600; font-size: 0.95rem; }
+
+        .dropdown-container { position: relative; }
+
+        .dropdown-popup {
+            position: absolute;
+            top: 60px;
+            right: 0;
+            background-color: rgba(var(--bg-card-rgb), 0.8);
+            backdrop-filter: blur(20px); /* Efek Kaca / Glassmorphism iOS */
+            -webkit-backdrop-filter: blur(20px);
+            background: var(--bg-card); /* Fallback */
+            color: var(--text-main);
+            width: 280px;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-float);
+            border: 1px solid var(--border-color);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(15px) scale(0.95);
+            transition: all 0.4s var(--spring);
+            z-index: 1000;
+            padding: 8px;
+        }
+
+        .dropdown-popup.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) scale(1);
+        }
+
+        .dropdown-item {
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            border-radius: 12px;
+            transition: background 0.2s ease;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--bg-body);
+        }
+
+        .content-scroll {
+            flex: 1;
+            overflow-y: auto;
+            border-radius: var(--radius-lg);
+            padding-bottom: 20px;
+        }
+        
+        .content-scroll::-webkit-scrollbar { width: 0; }
+
+        /* Banner Peringatan Modern */
+        .alert-bento {
+            background-color: var(--danger-bg);
+            border-radius: var(--radius-md);
+            padding: 20px 24px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: var(--danger-text);
+            font-weight: 600;
+        }
+
+        /* Grid Bento Utama */
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-auto-rows: minmax(180px, auto);
+            gap: 20px;
+        }
+
+        /* Kartu Base */
+        .bento-card {
+            background-color: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-card);
+            transition: all 0.4s var(--spring);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+        }
+
+        /* Efek Hover Kencang ala Anak Modern */
+        .bento-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: var(--shadow-hover);
+        }
+
+        /* Spesifik Kartu Bento */
+        .bento-welcome {
+            grid-column: span 3; /* Melebar 3 kolom */
+            background: var(--primary-light);
+            justify-content: center;
+            border: none;
+        }
+
+        /* Elemen Dekoratif Mesh di dalam kartu Welcome */
+        .bento-welcome::after {
+            content: '';
+            position: absolute;
+            right: -50px;
+            bottom: -50px;
+            width: 250px;
+            height: 250px;
+            background: radial-gradient(circle, var(--primary-color) 0%, transparent 70%);
+            opacity: 0.15;
+            border-radius: 50%;
+            filter: blur(30px);
+        }
+
+        .welcome-title {
+            font-size: 3rem; /* Gaya Teks Berani / Besar */
+            font-weight: 900;
+            letter-spacing: -0.04em;
+            color: var(--text-bold);
+            line-height: 1.1;
+            margin-bottom: 8px;
+            z-index: 2;
+        }
+
+        .welcome-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            z-index: 2;
+        }
+
+        /* Kartu Statistik Biasa */
+        .bento-stat {
+            grid-column: span 1;
+            justify-content: space-between;
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            background-color: var(--bg-body);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            color: var(--primary-color);
+        }
+
+        .stat-value {
+            font-size: 3.5rem; /* Teks Berani */
+            font-weight: 800;
+            color: var(--text-bold);
+            letter-spacing: -0.05em;
+            line-height: 1;
+            margin-top: auto;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Bento Lebar untuk Tren */
+        .bento-wide {
+            grid-column: span 2;
+            min-height: 220px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <i class="fas fa-layer-group"></i> Homebase.
+        </div>
+        
+        <div class="sidebar-menu">
+            <div class="menu-label">Navigasi Utama</div>
+            
+            <div class="menu-item active">
+                <div class="menu-item-left"><i class="fas fa-compass"></i> Discover</div>
+            </div>
+
+            <!-- Menu Dropdown -->
+            <div class="menu-item has-submenu">
+                <div class="menu-item-left"><i class="fas fa-inbox"></i> Surat Masuk</div>
+                <i class="fas fa-chevron-down arrow"></i>
+            </div>
+            <div class="submenu-wrapper">
+                <div class="submenu">
+                    <div class="submenu-inner">
+                        <div class="submenu-item">Prioritas</div>
+                        <div class="submenu-item">Belum Dibaca</div>
+                        <div class="submenu-item">Arsip</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Menu Dropdown -->
+            <div class="menu-item has-submenu">
+                <div class="menu-item-left"><i class="fas fa-paper-plane"></i> Usulan & Draft</div>
+                <i class="fas fa-chevron-down arrow"></i>
+            </div>
+            <div class="submenu-wrapper">
+                <div class="submenu">
+                    <div class="submenu-inner">
+                        <div class="submenu-item">Buat Baru</div>
+                        <div class="submenu-item">Dalam Proses</div>
+                        <div class="submenu-item">Ditolak</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="menu-item">
+                <div class="menu-item-left"><i class="fas fa-folder-open"></i> Master Data</div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-wrapper">
+        
+        <!-- Header Controls -->
+        <header class="top-bar">
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Cari surat, nama, atau instansi...">
+            </div>
+
+            <div class="header-controls">
+                <button class="icon-btn" id="themeToggle"><i class="fas fa-moon"></i></button>
+                
+                <!-- Notifikasi Popup -->
+                <div class="dropdown-container">
+                    <button class="icon-btn" id="notifToggle">
+                        <i class="fas fa-bell"></i>
+                    </button>
+                    <div class="dropdown-popup" id="notifPopup">
+                        <div style="padding: 12px 16px; font-weight: 800; border-bottom: 1px solid var(--border-color); margin-bottom: 8px;">
+                            Updates
+                        </div>
+                        <div class="dropdown-item">Tidak ada notifikasi baru 🔥</div>
+                    </div>
+                </div>
+
+                <!-- User Profile Popup -->
+                <div class="dropdown-container">
+                    <div class="user-pill" id="userToggle">
+                        <div class="avatar">DM</div>
+                        <div class="user-name">Danish M.</div>
+                        <i class="fas fa-chevron-down" style="font-size: 0.8rem; color: var(--text-muted); margin-right: 8px;"></i>
+                    </div>
+                    <div class="dropdown-popup" id="userPopup">
+                        <div class="dropdown-item"><i class="fas fa-user"></i> My Profile</div>
+                        <div class="dropdown-item"><i class="fas fa-cog"></i> Preferences</div>
+                        <div style="height: 1px; background: var(--border-color); margin: 8px 0;"></div>
+                        <div class="dropdown-item" style="color: var(--danger-text);"><i class="fas fa-sign-out-alt"></i> Log Out</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="content-scroll">
+            
+            <div class="alert-bento">
+                <span><i class="fas fa-exclamation-circle" style="margin-right: 10px;"></i> Lengkapi profil Anda untuk mengaktifkan notifikasi Telegram.</span>
+                <button style="background:var(--bg-card); border:none; padding:8px 16px; border-radius:50px; color:var(--text-bold); font-weight:bold; cursor:pointer;">Lengkapi</button>
+            </div>
+
+            <div class="bento-grid">
+                
+                <!-- Bento Welcome (Span 3 Columns) -->
+                <div class="bento-card bento-welcome">
+                    <h1 class="welcome-title">Sup, Danish.</h1>
+                    <p class="welcome-subtitle">Here is what's happening with your administration today.</p>
+                </div>
+
+                <!-- Bento Stat 1 -->
+                <div class="bento-card bento-stat">
+                    <div class="stat-icon" style="color: #ff3b30; background: rgba(255,59,48,0.1);"><i class="fas fa-fire"></i></div>
+                    <div class="stat-value">12</div>
+                    <div class="stat-label">Pending Action</div>
+                </div>
+
+                <!-- Bento Stat 2 (Span 1) -->
+                <div class="bento-card bento-stat">
+                    <div class="stat-icon"><i class="fas fa-envelope-open-text"></i></div>
+                    <div class="stat-value">48</div>
+                    <div class="stat-label">Surat Masuk</div>
+                </div>
+
+                <!-- Bento Stat 3 (Span 1) -->
+                <div class="bento-card bento-stat">
+                    <div class="stat-icon" style="color: #34c759; background: rgba(52,199,89,0.1);"><i class="fas fa-paper-plane"></i></div>
+                    <div class="stat-value">05</div>
+                    <div class="stat-label">Surat Keluar</div>
+                </div>
+
+                <!-- Bento Wide Placeholder 1 -->
+                <div class="bento-card bento-wide">
+                    <div class="stat-label" style="margin-bottom: 20px;">Aktivitas Mingguan</div>
+                    <div style="height: 100%; display:flex; align-items:center; justify-content:center; color: var(--text-muted); font-weight: 500;">
+                        <i class="fas fa-chart-bar" style="font-size: 3rem; opacity: 0.2; margin-right: 16px;"></i> Grafik Analytics Area
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // 1. Akordeon Sidebar
+        const menuItems = document.querySelectorAll('.menu-item');
+        menuItems.forEach(item => {
+            item.addEventListener('click', function() {
+                if(!this.classList.contains('has-submenu')) {
+                    menuItems.forEach(m => m.classList.remove('active'));
+                    this.classList.add('active');
+                }
+
+                if (this.classList.contains('has-submenu')) {
+                    const isCurrentlyOpen = this.classList.contains('open');
+                    const submenuWrapper = this.nextElementSibling;
+
+                    document.querySelectorAll('.menu-item.has-submenu').forEach(otherMenu => {
+                        otherMenu.classList.remove('open');
+                        otherMenu.nextElementSibling.classList.remove('open');
+                    });
+
+                    if (!isCurrentlyOpen) {
+                        this.classList.add('open');
+                        submenuWrapper.classList.add('open');
+                    }
+                }
+            });
+        });
+
+        // 2. Toggle Tema (Dark Mode)
+        const themeToggleBtn = document.getElementById('themeToggle');
+        const themeIcon = themeToggleBtn.querySelector('i');
+
+        themeToggleBtn.addEventListener('click', () => {
+            const body = document.body;
+            const isDarkMode = body.getAttribute('data-theme') === 'dark';
+
+            themeIcon.style.transform = 'scale(0) rotate(180deg)';
+            setTimeout(() => {
+                if (isDarkMode) {
+                    body.removeAttribute('data-theme');
+                    themeIcon.className = 'fas fa-moon';
+                } else {
+                    body.setAttribute('data-theme', 'dark');
+                    themeIcon.className = 'fas fa-sun';
+                }
+                themeIcon.style.transform = 'scale(1) rotate(0deg)';
+            }, 200);
+        });
+
+        // 3. Sistem Popup (Notif & Profile)
+        const notifToggle = document.getElementById('notifToggle');
+        const notifPopup = document.getElementById('notifPopup');
+        const userToggle = document.getElementById('userToggle');
+        const userPopup = document.getElementById('userPopup');
+
+        notifToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            notifPopup.classList.toggle('show');
+            userPopup.classList.remove('show');
+        });
+
+        userToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            userPopup.classList.toggle('show');
+            notifPopup.classList.remove('show');
+        });
+
+        window.addEventListener('click', (e) => {
+            if (!notifPopup.contains(e.target)) notifPopup.classList.remove('show');
+            if (!userPopup.contains(e.target)) userPopup.classList.remove('show');
+        });
+    </script>
+</body>
+</html>
